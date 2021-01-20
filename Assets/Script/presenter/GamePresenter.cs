@@ -2,6 +2,7 @@ using System;
 using UnityEngine.EventSystems;
 using UnityEngine;
 using UniRx;
+using static ATarget.CheckStatus;
 
 [RequireComponent(typeof(IUIPresenter))]
 public class GamePresenter : MonoBehaviour
@@ -9,15 +10,15 @@ public class GamePresenter : MonoBehaviour
     private IUIPresenter uiPresenter;
     private TouchModel touchModel;
 
-    [SerializeField] private int minArea = 100;
-    [SerializeField] private int maxArea = 1500;
-
-    [Space(10)]
-    [SerializeField] private ABucket bucket;
+    [SerializeField] private ATarget bucket;
     [SerializeField] private APocket pocket;
+    [Space(10)]
+    [SerializeField] private GameDifficulty difficulty;
+
+    private IDisposable ballSubscribe;
 
     private void Awake() {
-        touchModel = new TouchModel(minArea, maxArea);
+        touchModel = new TouchModel();
     }
 
     void Start()
@@ -25,9 +26,43 @@ public class GamePresenter : MonoBehaviour
         uiPresenter = GetComponent<IUIPresenter>();
 
         TouchActionSubscribe();
-        ThrowPocketSubscribe();
         UiControlSubscribe();
+        ThrowPocketSubscribe();
+        PocketSubscribe();
         BucketGoalSubscribe();
+    }
+
+    //Get next throwable object in pocket
+    private void PocketSubscribe() {
+        pocket.selected
+            .Where(v => v != null)
+            .Subscribe(v => SubscribeOnThrowable(v))
+            .AddTo(this);
+    }
+
+    //Throwable change position Subscribe
+    private void SubscribeOnThrowable(AThrowable selected) {
+        if (ballSubscribe != null)
+            ballSubscribe.Dispose();
+
+        ballSubscribe = selected.transform
+            .ObserveEveryValueChanged(v => v.position)
+            .Subscribe(_ => BucketCheckIn(selected));
+    }
+
+    //Check ingress in bucket
+    private void BucketCheckIn(AThrowable throwable) {
+        var status = bucket.CheckIn(throwable.transform.position, throwable.isClear);
+        switch (status) {
+            case MISS:
+                uiPresenter.ResetCombo();
+                pocket.NextObject();
+                break;
+            case GOAL:
+                uiPresenter.AddCombo();
+                pocket.NextObject();
+                break;
+        }
     }
 
     //Subscribe in goal
@@ -41,15 +76,16 @@ public class GamePresenter : MonoBehaviour
     //Subscribe in difficulty change
     private void UiControlSubscribe() {
         var dif = uiPresenter.GetDifficulty()
-            .Subscribe(v => bucket.SetDifficulty(v))
+            .Subscribe(v => difficulty.SetDifficulty(v))
             .AddTo(this);
     }
 
     //Subscribe in changed throw vector
     private void ThrowPocketSubscribe() {
-        touchModel.throwVector
-            .Where(v => v != Vector3.zero)
-            .Subscribe(v => pocket.ThrowItem(v))
+        touchModel.throwCommand
+            .Select(_ => touchModel)
+            .Subscribe(v => 
+                pocket.selected.Value.Throw(v.vectorStart, v.vectorEnd))
             .AddTo(this);
     }
 

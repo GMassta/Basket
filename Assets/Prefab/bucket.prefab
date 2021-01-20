@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 4556528872777316306}
   - component: {fileID: 6375039737638222132}
   - component: {fileID: -2222932470003043279}
-  - component: {fileID: 4196063121900494551}
   m_Layer: 0
   m_Name: bucket
   m_TagString: Untagged
@@ -96,7 +95,7 @@ MeshCollider:
   m_Enabled: 1
   serializedVersion: 4
   m_Convex: 0
-  m_CookingOptions: 30
+  m_CookingOptions: 28
   m_Mesh: {fileID: -2432090755550338912, guid: 7ba70f166dadde44da3e1b9b98701c4f, type: 3}
 --- !u!114 &-2222932470003043279
 MonoBehaviour:
@@ -110,25 +109,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2685a991c44503445842834b829df672, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  difficultyList:
-  - value: 1
-    bucketPosition: {x: 0, y: 0, z: 0}
-  - value: 2
-    bucketPosition: {x: 0, y: 0, z: 10}
-  - value: 3
-    bucketPosition: {x: 0, y: 0, z: 18}
   goalScore:
     value: 0
---- !u!135 &4196063121900494551
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6375039737638222135}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 1
-  m_Center: {x: 0, y: 1.531151, z: 0.00000047683716}
+  bucketHight: 2.9
+  maxRadius: 1

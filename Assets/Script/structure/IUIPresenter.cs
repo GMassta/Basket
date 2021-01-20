@@ -7,4 +7,10 @@ public interface IUIPresenter
 
     //Add score value
     void AddScore(int value);
+
+    //Add combo 
+    void AddCombo();
+
+    //Reset combo
+    void ResetCombo();
 }
