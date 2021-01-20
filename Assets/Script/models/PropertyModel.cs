@@ -3,13 +3,13 @@ using UnityEngine;
 using UniRx;
 
 public class PropertyModel {
-    public ReactiveProperty<bool> combo { get; private set; }
+    public ReactiveProperty<int> combo { get; private set; }
     public ReactiveProperty<int> scores { get; private set; }
     public ReactiveProperty<int> difficulty { get; private set; }
     public ReactiveProperty<int> comboTimer { get; private set; }
 
     public PropertyModel() {
-        combo = new ReactiveProperty<bool>();
+        combo = new ReactiveProperty<int>();
         scores = new ReactiveProperty<int>();
         difficulty = new ReactiveProperty<int>();
         comboTimer = new ReactiveProperty<int>();
@@ -25,15 +25,22 @@ public class PropertyModel {
 
     public void SetTimer(int value) {
         comboTimer.Value = value;
-        if (value > 0) {
-            combo.Value = true;
-        } else {
-            combo.Value = false;
-        }
+        combo.Value++;
     }
 
     public void TimerTick() {
-        SetTimer(comboTimer.Value - 1);
-        Debug.Log("Tick "+ comboTimer.Value);
+        comboTimer.Value--;
+
+        if (comboTimer.Value <= 0) {
+            if(combo.Value > 1)
+                AddScore(combo.Value);
+
+            ResetCombo();
+        }
+    }
+
+    public void ResetCombo() {
+        combo.Value = 0;
+        comboTimer.Value = 0;
     }
 }
